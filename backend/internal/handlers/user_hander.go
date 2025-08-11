@@ -24,10 +24,12 @@ func (h *UserHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	var loginRequest LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&loginRequest); err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
 	}
 	user, err := h.userService.LoginUser(loginRequest.Username)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

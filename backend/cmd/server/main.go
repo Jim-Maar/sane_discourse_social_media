@@ -25,7 +25,7 @@ func main() {
 
 	// Initialize services
 	userService := services.NewUserService(userRepo)
-	postService := services.NewPostService(postRepo)
+	postService := services.NewPostService(postRepo, userRepo, reactionRepo)
 	reactionService := services.NewReactionService(reactionRepo)
 
 	// Initialize handlers
@@ -34,8 +34,9 @@ func main() {
 	reactionHandler := handlers.NewReactionHandler(reactionService)
 
 	http.HandleFunc("/user/login", userHandler.LoginUser)
+	http.HandleFunc("/user/posts/create", postHandler.CreatePosts)
+	http.HandleFunc("/user/posts/add", postHandler.AddPosts)
 
-	_ = postHandler
 	_ = reactionHandler
 
 	http.ListenAndServe(":3000", nil)

@@ -42,6 +42,15 @@ func (r *PostRepository) FindByID(id primitive.ObjectID) (*models.Post, error) {
 	return &post, nil
 }
 
+func (r *PostRepository) FindByURL(url string) (*models.Post, error) {
+	var post models.Post
+	err := r.collection().FindOne(context.TODO(), bson.M{"url": url}).Decode(&post)
+	if err != nil {
+		return nil, err
+	}
+	return &post, nil
+}
+
 func (r *PostRepository) FindAll() ([]models.Post, error) {
 	cursor, err := r.collection().Find(context.TODO(), bson.M{})
 	if err != nil {

@@ -70,6 +70,24 @@ func (r *ReactionRepository) FindByPostID(postID primitive.ObjectID) ([]models.R
 	return reactions, nil
 }
 
+func (r *ReactionRepository) FindByUserIDAndPostID(userID, postID primitive.ObjectID) ([]models.Reaction, error) {
+	filter := bson.M{
+		"user_id": userID,
+		"post_id": postID,
+	}
+	cursor, err := r.collection().Find(context.TODO(), filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.TODO())
+
+	var reactions []models.Reaction
+	if err = cursor.All(context.TODO(), &reactions); err != nil {
+		return nil, err
+	}
+	return reactions, nil
+}
+
 func (r *ReactionRepository) FindAll() ([]models.Reaction, error) {
 	cursor, err := r.collection().Find(context.TODO(), bson.M{})
 	if err != nil {
