@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"sane-discourse-backend/internal/handlers"
+	"sane-discourse-backend/internal/middleware"
 	"sane-discourse-backend/internal/repositories"
 	"sane-discourse-backend/internal/services"
 
@@ -33,13 +34,20 @@ func main() {
 	postHandler := handlers.NewPostHandler(postService)
 	reactionHandler := handlers.NewReactionHandler(reactionService)
 
-	http.HandleFunc("/user/login", userHandler.LoginUser)
-	http.HandleFunc("/user/posts/create", postHandler.CreatePosts)
-	http.HandleFunc("/user/posts/add", postHandler.AddPost)
-	http.HandleFunc("/user/posts", postHandler.GetUserPosts)
-	http.HandleFunc("/home", postHandler.GetFeed)
+	// Create a new ServeMux
+	mux := http.NewServeMux()
+
+	// Register routes
+	mux.HandleFunc("/user/login", userHandler.LoginUser)
+	mux.HandleFunc("/user/posts/create", postHandler.CreatePosts)
+	mux.HandleFunc("/user/posts/add", postHandler.AddPost)
+	mux.HandleFunc("/user/posts", postHandler.GetUserPosts)
+	mux.HandleFunc("/home", postHandler.GetFeed)
 
 	_ = reactionHandler
 
-	http.ListenAndServe(":3000", nil)
+	// Wrap with CORS middleware
+	handler := middleware.CORSMiddleware(mux)
+
+	http.ListenAndServe(":3000", handler)
 }
