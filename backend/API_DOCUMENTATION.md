@@ -59,7 +59,7 @@ http://localhost:3000
 
 #### User Login
 ```http
-POST /user/login
+PUT /user/login
 ```
 
 **Request Body:**
@@ -81,7 +81,7 @@ POST /user/login
 
 #### Create Posts from URLs
 ```http
-POST /user/posts/create
+PUT /user/posts/create
 ```
 
 **Description:** Creates posts by scraping metadata from provided URLs.
@@ -111,7 +111,7 @@ POST /user/posts/create
 
 #### Add Post Manually
 ```http
-POST /user/posts/add
+PUT /user/posts/add
 ```
 
 **Description:** Adds a pre-formed post with user association to the Database
