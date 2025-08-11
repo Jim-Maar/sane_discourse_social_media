@@ -49,24 +49,24 @@ func (h *PostHandler) CreatePosts(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(posts)
 }
 
-type AddPostsRequest struct {
+type AddPostRequest struct {
 	UserId primitive.ObjectID `json:"user_id" bson:"user_id"`
-	Posts  []models.Post      `json:"posts" bson:"posts"`
+	Post   models.Post        `json:"post" bson:"post"`
 }
 
-func (h *PostHandler) AddPosts(w http.ResponseWriter, r *http.Request) {
-	var addPostsRequest AddPostsRequest
-	if err := json.NewDecoder(r.Body).Decode(&addPostsRequest); err != nil {
+func (h *PostHandler) AddPost(w http.ResponseWriter, r *http.Request) {
+	var addPostRequest AddPostRequest
+	if err := json.NewDecoder(r.Body).Decode(&addPostRequest); err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
-	posts, err := h.postService.AddPosts(addPostsRequest.Posts, addPostsRequest.UserId)
+	post, err := h.postService.AddPost(addPostRequest.Post, addPostRequest.UserId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(posts)
+	json.NewEncoder(w).Encode(post)
 }
 
 type GetUserPostsRequest struct {

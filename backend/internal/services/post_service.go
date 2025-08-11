@@ -57,33 +57,30 @@ func (s *PostService) CreatePosts(urls []string) ([]*models.Post, error) {
 	return posts, nil
 }
 
-func (s *PostService) AddPosts(posts []models.Post, userId primitive.ObjectID) ([]models.Post, error) {
-	addedPosts := []models.Post{}
+func (s *PostService) AddPost(post models.Post, userId primitive.ObjectID) (*models.Post, error) {
 	_, err := s.userRepository.FindByID(userId)
 	if err != nil {
-		return addedPosts, err
+		return nil, err
 	}
-	for _, post := range posts {
-		newPost, _ := s.postRepository.FindByURL(post.URL)
-		if newPost == nil {
-			newPost, err := s.postRepository.Create(post)
-			if err != nil {
-				return addedPosts, err
-			}
-			addedPosts = append(addedPosts, *newPost)
+	newPost, _ := s.postRepository.FindByURL(post.URL)
+	if newPost == nil {
+		newPost, err = s.postRepository.Create(post)
+		if err != nil {
+			return newPost, err
 		}
-		reactions, _ := s.reactionRepository.FindByUserIDAndPostID(userId, newPost.ID)
-		if len(reactions) != 0 {
-			continue
-		}
-		reaction := models.NewReaction(
-			types.ReactionTypeAgree,
-			userId,
-			newPost.ID,
-		)
-		s.reactionRepository.Create(*reaction)
+		// addedPosts = append(addedPosts, *newPost)
 	}
-	return addedPosts, nil
+	reactions, _ := s.reactionRepository.FindByUserIDAndPostID(userId, newPost.ID)
+	if len(reactions) != 0 {
+		return newPost, nil
+	}
+	reaction := models.NewReaction(
+		types.ReactionTypeAgree,
+		userId,
+		newPost.ID,
+	)
+	s.reactionRepository.Create(*reaction)
+	return newPost, nil
 }
 
 func (s *PostService) GetUserPosts(userID primitive.ObjectID) ([]models.Post, error) {
