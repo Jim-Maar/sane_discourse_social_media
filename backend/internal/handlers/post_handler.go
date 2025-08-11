@@ -68,3 +68,41 @@ func (h *PostHandler) AddPosts(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(posts)
 }
+
+type GetUserPostsRequest struct {
+	UserId primitive.ObjectID `json:"user_id" bson:"user_id"`
+}
+
+func (h *PostHandler) GetUserPosts(w http.ResponseWriter, r *http.Request) {
+	var getUserPostsRequest GetUserPostsRequest
+	if err := json.NewDecoder(r.Body).Decode(&getUserPostsRequest); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+	posts, err := h.postService.GetUserPosts(getUserPostsRequest.UserId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(posts)
+}
+
+type GetUserFeedRequest struct {
+	UserId primitive.ObjectID `json:"user_id" bson:"user_id"`
+}
+
+func (h *PostHandler) GetFeed(w http.ResponseWriter, r *http.Request) {
+	/*var getUserFeedRequest GetUserFeedRequest
+	if err := json.NewDecoder(r.Body).Decode(&getUserFeedRequest); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}*/
+	posts, err := h.postService.GetFeed()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(posts)
+}

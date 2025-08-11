@@ -36,6 +36,8 @@ func main() {
 	http.HandleFunc("/user/login", userHandler.LoginUser)
 	http.HandleFunc("/user/posts/create", postHandler.CreatePosts)
 	http.HandleFunc("/user/posts/add", postHandler.AddPosts)
+	http.HandleFunc("/user/posts", postHandler.GetUserPosts)
+	http.HandleFunc("/home", postHandler.GetFeed)
 
 	_ = reactionHandler
 

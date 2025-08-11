@@ -78,3 +78,66 @@ func (r *PostRepository) Delete(id primitive.ObjectID) error {
 	_, err := r.collection().DeleteOne(context.TODO(), bson.M{"_id": id})
 	return err
 }
+
+func (r *PostRepository) FindPostsReactedByUser(userID primitive.ObjectID) ([]models.Post, error) {
+	pipeline := []bson.M{
+		{"$lookup": bson.M{
+			"from":         "reactions",
+			"localField":   "_id",
+			"foreignField": "post_id",
+			"as":           "reactions",
+		}},
+		{"$match": bson.M{
+			"reactions.user_id": userID,
+		}},
+		{"$project": bson.M{
+			"reactions": 0,
+		}},
+	}
+
+	cursor, err := r.collection().Aggregate(context.TODO(), pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.TODO())
+
+	var posts []models.Post
+	if err = cursor.All(context.TODO(), &posts); err != nil {
+		return nil, err
+	}
+
+	return posts, nil
+}
+
+func (r *PostRepository) FindAllSortedByReactionCount() ([]models.Post, error) {
+	pipeline := []bson.M{
+		{"$lookup": bson.M{
+			"from":         "reactions",
+			"localField":   "_id",
+			"foreignField": "post_id",
+			"as":           "reactions",
+		}},
+		{"$addFields": bson.M{
+			"reaction_count": bson.M{"$size": "$reactions"},
+		}},
+		{"$sort": bson.M{
+			"reaction_count": -1,
+		}},
+		{"$project": bson.M{
+			"reactions": 0,
+		}},
+	}
+
+	cursor, err := r.collection().Aggregate(context.TODO(), pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.TODO())
+
+	var posts []models.Post
+	if err = cursor.All(context.TODO(), &posts); err != nil {
+		return nil, err
+	}
+
+	return posts, nil
+}

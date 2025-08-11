@@ -85,3 +85,13 @@ func (s *PostService) AddPosts(posts []models.Post, userId primitive.ObjectID) (
 	}
 	return addedPosts, nil
 }
+
+func (s *PostService) GetUserPosts(userID primitive.ObjectID) ([]models.Post, error) {
+	posts, err := s.postRepository.FindPostsReactedByUser(userID)
+	return posts, err
+}
+
+func (s *PostService) GetFeed() ([]models.Post, error) {
+	posts, err := s.postRepository.FindAllSortedByReactionCount()
+	return posts, err
+}
