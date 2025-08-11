@@ -1,0 +1,24 @@
+{
+  "name": "sane_discourse_social_media",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jim-Maar/sane_discourse_social_media.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Jim-Maar/sane_discourse_social_media/issues"
+  },
+  "homepage": "https://github.com/Jim-Maar/sane_discourse_social_media#readme",
+  "dev:frontend": "cd frontend && npm run dev",
+  "dev:backend": "cd frontend && go run main.go",
+  "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
+}
