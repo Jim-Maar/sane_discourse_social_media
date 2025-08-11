@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"net/http"
 
 	"sane-discourse-backend/internal/handlers"
 	"sane-discourse-backend/internal/repositories"
@@ -32,8 +33,10 @@ func main() {
 	postHandler := handlers.NewPostHandler(postService)
 	reactionHandler := handlers.NewReactionHandler(reactionService)
 
-	// Use handlers (placeholder - you can add routing later)
-	_ = userHandler
+	http.HandleFunc("/user/login", userHandler.LoginUser)
+
 	_ = postHandler
 	_ = reactionHandler
+
+	http.ListenAndServe(":3000", nil)
 }

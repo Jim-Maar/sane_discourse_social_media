@@ -1,16 +1,23 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"errors"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type User struct {
 	ID       primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	Username string             `json:"username" bson:"username" validate:"required,min=3,max=30"`
 }
 
-func NewUser(username string) *User {
+func NewUser(username string) (*User, error) {
+	if len(username) < 3 {
+		return nil, errors.New("username too short")
+	}
 	return &User{
 		Username: username,
-	}
+	}, nil
 }
 
 func (u *User) ToPublic() *UserPublic {
