@@ -1,20 +1,20 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { userLogin, getUserPosts, createPostsFromUrls, addPost } from '../api';
+import { userLogin, getUserPosts, createPostFromUrl, addPost } from '../api';
 import { PostCard } from '../components/PostCard';
 import { EditablePostCard } from '../components/EditablePostCard';
 import type { User, Post } from '../types';
 
-interface UserPageProps {
+interface UserpageProps {
   currentUser: User | null;
   setCurrentUser: (user: User | null) => void;
 }
 
-export const UserPage = ({ currentUser, setCurrentUser }: UserPageProps) => {
+export const Userpage = ({ currentUser, setCurrentUser }: UserpageProps) => {
   const [username, setUsername] = useState('');
-  const [urlsText, setUrlsText] = useState('');
+  const [urlText, setUrlText] = useState('');
   const [pendingPosts, setPendingPosts] = useState<Post[]>([]);
-  
+
   const queryClient = useQueryClient();
 
   // Login mutation
@@ -30,16 +30,16 @@ export const UserPage = ({ currentUser, setCurrentUser }: UserPageProps) => {
     }
   });
 
-  // Create posts from URLs mutation
-  const createPostsMutation = useMutation({
-    mutationFn: createPostsFromUrls,
-    onSuccess: (posts) => {
-      setPendingPosts(posts);
-      setUrlsText('');
+  // Create post from URL mutation
+  const createPostMutation = useMutation({
+    mutationFn: createPostFromUrl,
+    onSuccess: (post) => {
+      setPendingPosts(prev => [...prev, post]);
+      setUrlText('');
     },
     onError: (error) => {
-      console.error('Failed to create posts:', error);
-      alert('Failed to create posts. Please check the URLs and try again.');
+      console.error('Failed to create post:', error);
+      alert('Failed to create post. Please check the URL and try again.');
     }
   });
 
@@ -70,28 +70,21 @@ export const UserPage = ({ currentUser, setCurrentUser }: UserPageProps) => {
     }
   };
 
-  const handleCreatePosts = (e: React.FormEvent) => {
+  const handleCreatePost = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!urlsText.trim()) return;
-    
-    const urls = urlsText
-      .split('\n')
-      .map(url => url.trim())
-      .filter(url => url.length > 0);
-    
-    if (urls.length > 0) {
-      createPostsMutation.mutate({ urls });
-    }
+    if (!urlText.trim()) return;
+
+    createPostMutation.mutate({ url: urlText.trim() });
   };
 
   const handleAcceptPost = (post: Post) => {
     if (!currentUser) return;
-    
+
     addPostMutation.mutate({
       user_id: currentUser.id,
       post
     });
-    
+
     // Remove from pending posts
     setPendingPosts(prev => prev.filter(p => p.url !== post.url));
   };
@@ -105,7 +98,7 @@ export const UserPage = ({ currentUser, setCurrentUser }: UserPageProps) => {
       <div style={{ maxWidth: '400px', margin: '2rem auto', padding: '1rem' }}>
         <h1>User Login</h1>
         <p>Please enter your username to continue:</p>
-        
+
         <form onSubmit={handleLogin} style={{ marginTop: '1rem' }}>
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ display: 'block', marginBottom: '0.5rem' }}>
@@ -124,8 +117,8 @@ export const UserPage = ({ currentUser, setCurrentUser }: UserPageProps) => {
               }}
             />
           </div>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loginMutation.isPending}
             style={{
               width: '100%',
@@ -147,38 +140,37 @@ export const UserPage = ({ currentUser, setCurrentUser }: UserPageProps) => {
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '1rem' }}>
       <h1>User Page</h1>
-      
+
       {/* URL Input Section */}
-      <div style={{ 
-        border: '1px solid #ddd', 
-        borderRadius: '8px', 
-        padding: '1rem', 
+      <div style={{
+        border: '1px solid #ddd',
+        borderRadius: '8px',
+        padding: '1rem',
         marginBottom: '2rem',
         backgroundColor: 'var(--card-bg, #f9f9f9)'
       }}>
-        <h2>Add New Posts</h2>
-        <form onSubmit={handleCreatePosts}>
+        <h2>Add New Post</h2>
+        <form onSubmit={handleCreatePost}>
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-              Paste URLs (one per line):
+              Paste URL:
             </label>
-            <textarea
-              value={urlsText}
-              onChange={(e) => setUrlsText(e.target.value)}
-              placeholder="https://example.com/article1&#10;https://example.com/article2"
+            <input
+              type="url"
+              value={urlText}
+              onChange={(e) => setUrlText(e.target.value)}
+              placeholder="https://example.com/article"
               style={{
                 width: '100%',
-                minHeight: '100px',
                 padding: '0.5rem',
                 border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontFamily: 'monospace'
+                borderRadius: '4px'
               }}
             />
           </div>
-          <button 
-            type="submit" 
-            disabled={createPostsMutation.isPending || !urlsText.trim()}
+          <button
+            type="submit"
+            disabled={createPostMutation.isPending || !urlText.trim()}
             style={{
               padding: '0.75rem 1.5rem',
               backgroundColor: '#28a745',
@@ -188,7 +180,7 @@ export const UserPage = ({ currentUser, setCurrentUser }: UserPageProps) => {
               cursor: 'pointer'
             }}
           >
-            {createPostsMutation.isPending ? 'Processing URLs...' : 'Create Posts'}
+            {createPostMutation.isPending ? 'Processing URL...' : 'Create Post'}
           </button>
         </form>
       </div>
@@ -198,8 +190,8 @@ export const UserPage = ({ currentUser, setCurrentUser }: UserPageProps) => {
         <div style={{ marginBottom: '2rem' }}>
           <h2>Review & Accept Posts</h2>
           <p style={{ color: '#666', marginBottom: '1rem' }}>
-            Review the posts below. You can edit empty fields and the description. 
-            Accept each post individually to add it to your collection.
+            Review the post below. You can edit empty fields and the description.
+            Accept the post to add it to your collection.
           </p>
           {pendingPosts.map((post, index) => (
             <EditablePostCard

@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Navigation } from './components/Navigation';
 import { HomePage } from './pages/HomePage';
-import { UserPage } from './pages/UserPage';
+import { Userpage } from './pages/Userpage';
 import type { User } from './types';
 import './App.css';
 
@@ -41,21 +41,21 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <div style={{ minHeight: '100vh' }}>
-          <Navigation 
-            currentUser={currentUser?.username || null} 
+          <Navigation
+            currentUser={currentUser?.username || null}
             onLogout={handleLogout}
           />
-          
+
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route 
-              path="/user" 
+            <Route
+              path="/user"
               element={
-                <UserPage 
-                  currentUser={currentUser} 
+                <Userpage
+                  currentUser={currentUser}
                   setCurrentUser={setCurrentUser}
                 />
-              } 
+              }
             />
           </Routes>
         </div>

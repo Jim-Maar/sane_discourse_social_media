@@ -30,7 +30,22 @@ export const Navigation = ({ currentUser, onLogout }: NavigationProps) => {
                         <button onClick={onLogout}>Logout</button>
                     </div>
                 ) : (
-                    <span>Not logged in</span>
+                    <div>
+                        <span style={{ marginRight: '1rem' }}>Not logged in</span>
+                        <button
+                            onClick={() => window.location.href = 'http://localhost:3000/auth/google'}
+                            style={{
+                                backgroundColor: '#4285f4',
+                                color: 'white',
+                                border: 'none',
+                                padding: '8px 16px',
+                                borderRadius: '4px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Login with Google
+                        </button>
+                    </div>
                 )}
             </div>
         </nav>

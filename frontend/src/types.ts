@@ -35,8 +35,8 @@ export type ReactionType =
     | 'downvote'
     | 'strong_downvote';
 
-export interface CreatePostsRequest {
-    urls: string[];
+export interface CreatePostRequest {
+    url: string;
 }
 
 export interface AddPostRequest {

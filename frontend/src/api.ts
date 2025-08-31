@@ -2,7 +2,7 @@ import axios from 'axios';
 import type {
     User,
     Post,
-    CreatePostsRequest,
+    CreatePostRequest,
     AddPostRequest,
     UserPostsRequest,
     LoginRequest
@@ -21,7 +21,7 @@ export const userLogin = async (request: LoginRequest): Promise<User> => {
 };
 
 // Post endpoints
-export const createPostsFromUrls = async (request: CreatePostsRequest): Promise<Post[]> => {
+export const createPostFromUrl = async (request: CreatePostRequest): Promise<Post> => {
     const response = await api.put('/user/posts/create', request);
     return response.data;
 };

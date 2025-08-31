@@ -1,0 +1,215 @@
+### Sane Discourse Social Media API Tests
+### Base URL: http://localhost:3000
+
+### 1. User Login
+PUT http://localhost:3000/user/login
+Content-Type: application/json
+
+{
+  "username": "testuser"
+}
+
+### 2. Create Post from URL
+PUT http://localhost:3000/user/posts/create
+Content-Type: application/json
+
+{
+  "url": "https://forum.effectivealtruism.org/posts/hkimyETEo76hJ6NpW/on-caring"
+}
+
+### 3. Add Post Manually
+PUT http://localhost:3000/user/posts/add
+Content-Type: application/json
+
+{
+  "user_id": "68a9e101a4c9e428fd6ca972",
+  "post": {
+    "title": "On Caring",
+    "description": "...",
+    "thumbnail_url": "https://res.cloudinary.com/cea/image/upload/f_auto,q_auto/v1/mirroredImages/hkimyETEo76hJ6NpW/dmykfraqvwwuim6rxohs",
+    "site_name": "EA Forum",
+    "url": "https://forum.effectivealtruism.org/posts/hkimyETEo76hJ6NpW/on-caring",
+    "type": "Blog post",
+    "author": "Nate Soares"
+  }
+}
+
+### 4. Get User Posts
+POST http://localhost:3000/user/posts
+Content-Type: application/json
+
+{
+  "user_id": "68a9e101a4c9e428fd6ca972"
+}
+
+### 5. Get Feed (Home)
+GET http://localhost:3000/home
+
+### 6. Add Header Component to Userpage
+PUT http://localhost:3000/userpage/component/add
+Content-Type: application/json
+
+{
+  "userpage_id": "68a9e101a4c9e428fd6ca972",
+  "index": 0,
+  "component": {
+    "content": "Welcome to My Page",
+    "size": 1
+  }
+}
+
+### 7. Add Paragraph Component to Userpage
+PUT http://localhost:3000/userpage/component/add
+Content-Type: application/json
+
+{
+  "userpage_id": "507f1f77bcf86cd799439012",
+  "index": 1,
+  "component": {
+    "content": "This is a paragraph describing my interests and background."
+  }
+}
+
+### 8. Add Post Component to Userpage
+PUT http://localhost:3000/userpage/component/add
+Content-Type: application/json
+
+{
+  "userpage_id": "507f1f77bcf86cd799439012",
+  "index": 2,
+  "component": {
+    "post_id": "507f1f77bcf86cd799439013",
+    "size": 2
+  }
+}
+
+### 9. Add Divider Component to Userpage
+PUT http://localhost:3000/userpage/component/add
+Content-Type: application/json
+
+{
+  "userpage_id": "507f1f77bcf86cd799439012",
+  "index": 3,
+  "component": {
+    "type": "regular"
+  }
+}
+
+### 10. Move Component in Userpage
+PUT http://localhost:3000/userpage/component/move
+Content-Type: application/json
+
+{
+  "userpage_id": "507f1f77bcf86cd799439012",
+  "prev_index": 3,
+  "new_index": 1
+}
+
+### Additional Test Cases
+
+### 11. Create Post from YouTube URL
+PUT http://localhost:3000/user/posts/create
+Content-Type: application/json
+
+{
+  "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+}
+
+### 12. Create Post from GitHub URL
+PUT http://localhost:3000/user/posts/create
+Content-Type: application/json
+
+{
+  "url": "https://github.com/torvalds/linux"
+}
+
+### 13. Add Multiple Components Example
+PUT http://localhost:3000/userpage/component/add
+Content-Type: application/json
+
+{
+  "userpage_id": "507f1f77bcf86cd799439012",
+  "index": 0,
+  "component": {
+    "content": "About Me",
+    "size": 2
+  }
+}
+
+###
+PUT http://localhost:3000/userpage/component/add
+Content-Type: application/json
+
+{
+  "userpage_id": "507f1f77bcf86cd799439012",
+  "index": 1,
+  "component": {
+    "content": "I'm a software developer passionate about clean code and user experience. I enjoy working with modern web technologies and building applications that make a difference."
+  }
+}
+
+###
+PUT http://localhost:3000/userpage/component/add
+Content-Type: application/json
+
+{
+  "userpage_id": "507f1f77bcf86cd799439012",
+  "index": 2,
+  "component": {
+    "type": "regular"
+  }
+}
+
+###
+PUT http://localhost:3000/userpage/component/add
+Content-Type: application/json
+
+{
+  "userpage_id": "507f1f77bcf86cd799439012",
+  "index": 3,
+  "component": {
+    "content": "My Projects",
+    "size": 3
+  }
+}
+
+### 14. Error Test Cases
+
+### Invalid User ID
+POST http://localhost:3000/user/posts
+Content-Type: application/json
+
+{
+  "user_id": "invalid_id"
+}
+
+### Invalid URL for Post Creation
+PUT http://localhost:3000/user/posts/create
+Content-Type: application/json
+
+{
+  "url": "not-a-valid-url"
+}
+
+### Invalid Userpage ID
+PUT http://localhost:3000/userpage/component/add
+Content-Type: application/json
+
+{
+  "userpage_id": "invalid_id",
+  "index": 0,
+  "component": {
+    "content": "Test Header",
+    "size": 1
+  }
+}
+
+### Move Component with Invalid Indices
+PUT http://localhost:3000/userpage/component/move
+Content-Type: application/json
+
+{
+  "userpage_id": "507f1f77bcf86cd799439012",
+  "prev_index": 99,
+  "new_index": 1
+}

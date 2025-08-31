@@ -51,6 +51,15 @@ func (r *UserRepository) FindByUsername(username string) (*models.User, error) {
 	return &user, nil
 }
 
+func (r *UserRepository) FindByEmail(email string) (*models.User, error) {
+	var user models.User
+	err := r.collection().FindOne(context.TODO(), bson.M{"email": email}).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
 func (r *UserRepository) FindAll() ([]models.User, error) {
 	cursor, err := r.collection().Find(context.TODO(), bson.M{})
 	if err != nil {
@@ -59,19 +68,27 @@ func (r *UserRepository) FindAll() ([]models.User, error) {
 	defer cursor.Close(context.TODO())
 
 	var users []models.User
-	if err = cursor.All(context.TODO(), &users); err != nil {
+	for cursor.Next(context.TODO()) {
+		var user models.User
+		if err := cursor.Decode(&user); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	if err := cursor.Err(); err != nil {
 		return nil, err
 	}
+
 	return users, nil
 }
 
-func (r *UserRepository) Update(id primitive.ObjectID, update bson.M) (*models.User, error) {
-	filter := bson.M{"_id": id}
-	_, err := r.collection().UpdateOne(context.TODO(), filter, bson.M{"$set": update})
+func (r *UserRepository) Update(user models.User) (*models.User, error) {
+	_, err := r.collection().ReplaceOne(context.TODO(), bson.M{"_id": user.ID}, user)
 	if err != nil {
 		return nil, err
 	}
-	return r.FindByID(id)
+	return &user, nil
 }
 
 func (r *UserRepository) Delete(id primitive.ObjectID) error {
