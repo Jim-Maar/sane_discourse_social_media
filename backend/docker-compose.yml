@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  mongodb-dev:
+    image: mongo:7.0
+    container_name: sane_discourse_mongodb_dev
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: dev_admin_password
+      MONGO_INITDB_DATABASE: sane_discourse_dev
+    volumes:
+      - mongodb_dev_data:/data/db
+      - ./backend/configs/mongo-init-dev.js:/docker-entrypoint-initdb.d/mongo-init-dev.js:ro
+    networks:
+      - dev_network
+
+volumes:
+  mongodb_dev_data:
+
+networks:
+  dev_network:
+    driver: bridge
