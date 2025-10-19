@@ -33,13 +33,11 @@ func SetupTestServer(t *testing.T) {
 	reactionRepo := repositories.NewReactionRepository(client)
 	userpageRepo := repositories.NewUserpageRepository(client)
 
-	// Initialize services
 	userService := services.NewUserService(userRepo, userpageRepo)
 	postService := services.NewPostService(postRepo, userRepo, reactionRepo)
 	reactionService := services.NewReactionService(reactionRepo)
 
-	// Initialize handlers
-	// userHandler := handlers.NewUserHandler(userService)
+	// userHandler := controllers.NewUserHandler(userService)
 	postHandler := handlers.NewPostHandler(postService)
 	reactionHandler := handlers.NewReactionHandler(reactionService)
 
@@ -50,7 +48,7 @@ func SetupTestServer(t *testing.T) {
 	// mux := http.NewServeMux()
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173", "http://localhost:3000"}, // Specific origins
+		AllowedOrigins:   []string{"http://localhost:5173", "http://localhost:3000"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
