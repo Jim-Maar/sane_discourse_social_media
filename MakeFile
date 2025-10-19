@@ -1,0 +1,11 @@
+run:
+	cd backend
+	docker-compose up -d
+	go run cmd/server/main.go
+	cd ../frontend
+	npm run dev
+
+test:
+	cd backend
+	docker-compose up -d
+	go test
