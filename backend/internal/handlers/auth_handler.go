@@ -26,10 +26,6 @@ func (h *AuthHandler) GetAuthCallbackFunction(w http.ResponseWriter, r *http.Req
 	provider := chi.URLParam(r, "provider")
 	r = r.WithContext(context.WithValue(r.Context(), "provider", provider))
 
-	// Debug session
-	fmt.Printf("Callback URL: %s\n", r.URL.String())
-	fmt.Printf("Cookies: %v\n", r.Cookies())
-
 	user, err := gothic.CompleteUserAuth(w, r)
 	if err != nil {
 		fmt.Printf("Auth error: %v\n", err)
@@ -48,18 +44,12 @@ func (h *AuthHandler) GetAuthCallbackFunction(w http.ResponseWriter, r *http.Req
 	session.Values["user_id"] = dbUser.ID
 	session.Save(r, w)
 
-	fmt.Printf("Successfully authenticated user: %+v\n", user)
 	http.Redirect(w, r, "http://localhost:5173/home", http.StatusFound)
 }
 
 func (h *AuthHandler) BeginAuthProviderCallback(w http.ResponseWriter, r *http.Request) {
 	provider := chi.URLParam(r, "provider")
 	r = r.WithContext(context.WithValue(r.Context(), "provider", provider))
-
-	// Debug session
-	fmt.Printf("Begin auth URL: %s\n", r.URL.String())
-	fmt.Printf("Cookies: %v\n", r.Cookies())
-
 	gothic.BeginAuthHandler(w, r)
 }
 
