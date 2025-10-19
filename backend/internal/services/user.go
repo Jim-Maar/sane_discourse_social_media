@@ -22,7 +22,7 @@ func NewUserService(userRepository *repositories.UserRepository, userpageReposit
 func (s *UserService) LoginUser(username string, email string) (*models.User, error) {
 	user, _ := s.userRepository.FindByEmail(email)
 	if user != nil {
-		return user, nil // user exists
+		return user, nil
 	}
 	user, err := models.NewUser(username, email)
 	if err != nil {

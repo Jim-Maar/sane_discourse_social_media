@@ -5,13 +5,56 @@
 http://localhost:3000
 ```
 
+## Authentication
+
+The API uses session-based authentication with OAuth providers (Google). For testing purposes, a mock authentication endpoint is available.
+
+### Mock Authentication (Testing Only)
+```http
+PUT /auth/login
+```
+
+**Request Body:**
+```json
+{
+  "name": "string",
+  "email": "string"
+}
+```
+
+**Response:**
+```json
+{
+  "id": "ObjectID",
+  "username": "string",
+  "email": "string"
+}
+```
+
+### Get Current User
+```http
+PUT /auth/me
+```
+
+**Description:** Returns the currently authenticated user.
+
+**Response:**
+```json
+{
+  "id": "ObjectID",
+  "username": "string",
+  "email": "string"
+}
+```
+
 ## Data Models
 
 ### User
 ```json
 {
   "id": "ObjectID",
-  "username": "string"
+  "username": "string",
+  "email": "string"
 }
 ```
 
@@ -122,28 +165,6 @@ Components are polymorphic - each type has a different structure:
 
 ## API Endpoints
 
-### User Endpoints
-
-#### User Login
-```http
-PUT /user/login
-```
-
-**Request Body:**
-```json
-{
-  "username": "string"
-}
-```
-
-**Response:**
-```json
-{
-  "id": "ObjectID",
-  "username": "string"
-}
-```
-
 ### Post Endpoints
 
 #### Create Post from URL
@@ -179,12 +200,11 @@ PUT /user/posts/create
 PUT /user/posts/add
 ```
 
-**Description:** Adds a pre-formed post with user association to the Database
+**Description:** Adds a pre-formed post with user association to the Database. Requires authentication.
 
 **Request Body:**
 ```json
 {
-  "user_id": "ObjectID",
   "post": {
     "title": "string",
     "description": "string",
@@ -213,17 +233,10 @@ PUT /user/posts/add
 
 #### Get User Posts
 ```http
-POST /user/posts
+GET /user/posts
 ```
 
-**Description:** Retrieves posts for a specific user.
-
-**Request Body:**
-```json
-{
-  "user_id": "ObjectID"
-}
-```
+**Description:** Retrieves posts for the currently authenticated user. Requires authentication.
 
 **Response:**
 ```json
@@ -271,12 +284,11 @@ GET /home
 PUT /userpage/component/add
 ```
 
-**Description:** Adds a new component to a userpage at a specific index.
+**Description:** Adds a new component to the authenticated user's userpage at a specific index. Requires authentication.
 
 **Request Body:**
 ```json
 {
-  "userpage_id": "ObjectID",
   "index": "number",
   "component": {
     // Component object (PostComponent, HeaderComponent, ParagraphComponent, or DividerComponent)
@@ -288,6 +300,7 @@ PUT /userpage/component/add
 ```json
 {
   "id": "ObjectID",
+  "user_id": "ObjectID",
   "components": [
     // Array of updated components
   ]
@@ -299,12 +312,11 @@ PUT /userpage/component/add
 PUT /userpage/component/move
 ```
 
-**Description:** Moves a component from one position to another within a userpage.
+**Description:** Moves a component from one position to another within the authenticated user's userpage. Requires authentication.
 
 **Request Body:**
 ```json
 {
-  "userpage_id": "ObjectID",
   "prev_index": "number",
   "new_index": "number"
 }
@@ -314,6 +326,7 @@ PUT /userpage/component/move
 ```json
 {
   "id": "ObjectID",
+  "user_id": "ObjectID",
   "components": [
     // Array of updated components
   ]

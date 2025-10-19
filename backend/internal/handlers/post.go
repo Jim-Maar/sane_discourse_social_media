@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"sane-discourse-backend/internal/models"
 	"sane-discourse-backend/internal/services"
-	"sane-discourse-backend/pkg/logger"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -35,31 +35,19 @@ func dereferencePostSlice(posts []*models.Post) []models.Post {
 }
 
 func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
-	log := logger.GetLogger()
-
 	var createPostRequest CreatePostRequest
 	if err := json.NewDecoder(r.Body).Decode(&createPostRequest); err != nil {
-		log.WithField("error", err.Error()).Error("CreatePost: Invalid request body")
+		log.Printf("CreatePost: Invalid request body: %v", err)
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
 
-	log.WithField("input", createPostRequest).Info("CreatePost: Request received")
-
 	post, err := h.postService.CreatePost(createPostRequest.URL)
 	if err != nil {
-		log.WithFields(map[string]interface{}{
-			"input": createPostRequest,
-			"error": err.Error(),
-		}).Error("CreatePost: Request failed")
+		log.Printf("CreatePost: Request failed for input %+v: %v", createPostRequest, err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	log.WithFields(map[string]interface{}{
-		"input":  createPostRequest,
-		"output": post,
-	}).Info("CreatePost: Request successful")
 
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -72,16 +60,12 @@ type AddPostRequest struct {
 }
 
 func (h *PostHandler) AddPost(w http.ResponseWriter, r *http.Request) {
-	log := logger.GetLogger()
-
 	var addPostRequest AddPostRequest
 	if err := json.NewDecoder(r.Body).Decode(&addPostRequest); err != nil {
-		log.WithField("error", err.Error()).Error("AddPost: Invalid request body")
+		log.Printf("AddPost: Invalid request body: %v", err)
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
-
-	log.WithField("input", addPostRequest).Info("AddPost: Request received")
 
 	userIDInterface := r.Context().Value("user_id")
 	userID, ok := userIDInterface.(primitive.ObjectID)
@@ -92,18 +76,10 @@ func (h *PostHandler) AddPost(w http.ResponseWriter, r *http.Request) {
 
 	post, err := h.postService.AddPost(addPostRequest.Post, userID)
 	if err != nil {
-		log.WithFields(map[string]interface{}{
-			"input": addPostRequest,
-			"error": err.Error(),
-		}).Error("AddPost: Request failed")
+		log.Printf("AddPost: Request failed for input %+v: %v", addPostRequest, err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	log.WithFields(map[string]interface{}{
-		"input":  addPostRequest,
-		"output": post,
-	}).Info("AddPost: Request successful")
 
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -115,8 +91,6 @@ func (h *PostHandler) AddPost(w http.ResponseWriter, r *http.Request) {
 // }
 
 func (h *PostHandler) GetUserPosts(w http.ResponseWriter, r *http.Request) {
-	log := logger.GetLogger()
-
 	// var getUserPostsRequest GetUserPostsRequest
 	// if err := json.NewDecoder(r.Body).Decode(&getUserPostsRequest); err != nil {
 	// 	log.WithField("error", err.Error()).Error("GetUserPosts: Invalid request body")
@@ -139,10 +113,6 @@ func (h *PostHandler) GetUserPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.WithFields(map[string]interface{}{
-		"post_count": len(posts),
-	}).Info("GetUserPosts: Request successful")
-
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(posts)
@@ -153,17 +123,13 @@ func (h *PostHandler) GetUserPosts(w http.ResponseWriter, r *http.Request) {
 // }
 
 func (h *PostHandler) GetFeed(w http.ResponseWriter, r *http.Request) {
-	log := logger.GetLogger()
-	log.Info("GetFeed: Request received")
-
 	posts, err := h.postService.GetFeed()
 	if err != nil {
-		log.WithField("error", err.Error()).Error("GetFeed: Request failed")
+		log.Printf("GetFeed: Request failed: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	log.WithField("post_count", len(posts)).Info("GetFeed: Request successful")
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(posts)

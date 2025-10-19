@@ -22,7 +22,11 @@ func (s *UserpageService) AddComponent(userID primitive.ObjectID, index int, com
 	if err != nil {
 		return nil, err
 	}
-	newComponents := append(append(userpage.Components[:index], *component), userpage.Components[index:]...)
+	// Insert component at index without modifying the slice during operation
+	newComponents := make([]models.Component, len(userpage.Components)+1)
+	copy(newComponents[:index], userpage.Components[:index])
+	newComponents[index] = *component
+	copy(newComponents[index+1:], userpage.Components[index:])
 	userpage.Components = newComponents
 	userpage, err = s.userpageRepository.Update(*userpage)
 	if err != nil {
@@ -37,12 +41,23 @@ func (s *UserpageService) MoveComponent(userID primitive.ObjectID, prevIndex int
 		return nil, err
 	}
 	component := userpage.Components[prevIndex]
-	newComponents := append(userpage.Components[:prevIndex], userpage.Components[prevIndex+1:]...)
+	// Remove component from prevIndex
+	newComponents := make([]models.Component, len(userpage.Components)-1)
+	copy(newComponents[:prevIndex], userpage.Components[:prevIndex])
+	copy(newComponents[prevIndex:], userpage.Components[prevIndex+1:])
+
+	// Adjust newIndex if necessary
 	if newIndex > prevIndex {
 		newIndex -= 1
 	}
-	newComponents = append(append(newComponents[:newIndex], component), newComponents[newIndex:]...)
-	userpage.Components = newComponents
+
+	// Insert component at newIndex
+	result := make([]models.Component, len(newComponents)+1)
+	copy(result[:newIndex], newComponents[:newIndex])
+	result[newIndex] = component
+	copy(result[newIndex+1:], newComponents[newIndex:])
+
+	userpage.Components = result
 	userpage, err = s.userpageRepository.Update(*userpage)
 	if err != nil {
 		return nil, err

@@ -21,8 +21,17 @@ type DeviderType string
 
 const RegularDevider = "regular"
 
-type Component interface {
-	isComponent()
+type Component struct {
+	// Only one of these will be non-nil
+	Header    *HeaderComponent   `json:"header,omitempty" bson:"header,omitempty"`
+	Post      *PostComponent     `json:"post,omitempty" bson:"post,omitempty"`
+	Paragraph *PragraphComponent `json:"paragraph,omitempty" bson:"paragraph,omitempty"`
+	Divider   *DividerComponent  `json:"divider,omitempty" bson:"divider,omitempty"`
+}
+
+type HeaderComponent struct {
+	Content string              `json:"content" bson:"content"`
+	Size    HeaderComponentSize `json:"size" bson:"size"`
 }
 
 type PostComponent struct {
@@ -30,26 +39,13 @@ type PostComponent struct {
 	Size   PostComponentSize  `json:"size" bson:"size"`
 }
 
-func (PostComponent) isComponent() {}
-
-type HeaderComponent struct {
-	Content string              `json:"content" bson:"content"`
-	Size    HeaderComponentSize `json:"size" bson:"size"`
-}
-
-func (HeaderComponent) isComponent() {}
-
 type PragraphComponent struct {
 	Content string `json:"content" bson:"content"`
 }
 
-func (PragraphComponent) isComponent() {}
-
-type DeviderComponent struct {
-	Type DeviderType `json:"type" bson:"type"`
+type DividerComponent struct {
+	Style DeviderType `json:"style" bson:"style"`
 }
-
-func (DeviderComponent) isComponent() {}
 
 type Userpage struct {
 	ID         primitive.ObjectID `json:"id" bson:"_id,omitempty"`

@@ -20,8 +20,8 @@ func NewUserpageHandler(s *services.UserpageService) *UserpageHandler {
 }
 
 type AddComponentRequest struct {
-	Index     int
-	component models.Component
+	Index     int              `json:"index"`
+	Component models.Component `json:"component"`
 }
 
 func (h *UserpageHandler) AddComponent(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +38,7 @@ func (h *UserpageHandler) AddComponent(w http.ResponseWriter, r *http.Request) {
 	userpage, err := h.userpageService.AddComponent(
 		userID,
 		addComponentRequest.Index,
-		&addComponentRequest.component,
+		&addComponentRequest.Component,
 	)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -54,8 +54,8 @@ func (h *UserpageHandler) AddComponent(w http.ResponseWriter, r *http.Request) {
 }
 
 type MoveComponentRequest struct {
-	PrevIndex int
-	NewIndex  int
+	PrevIndex int `json:"prev_index" bson:"prev_index"`
+	NewIndex  int `json:"new_index" bson:"new_index"`
 }
 
 func (h *UserpageHandler) MoveComponent(w http.ResponseWriter, r *http.Request) {

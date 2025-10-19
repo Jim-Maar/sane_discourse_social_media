@@ -17,15 +17,15 @@ const (
 )
 
 func NewAuth() {
-	jwtSecret := os.Getenv("JWT_SECRET")
-	if jwtSecret == "" {
-		log.Fatal("JWT_SECRET environment variable is not set")
+	secretKey := os.Getenv("SECRET_KEY")
+	if secretKey == "" {
+		log.Fatal("SECRET_KEY environment variable is not set")
 	}
 
-	key := []byte(jwtSecret)
-	if len(key) < 32 {
-		log.Fatal("JWT_SECRET must be at least 32 bytes long for AES-256 encryption")
-	}
+	key := []byte(secretKey)
+	// if len(key) < 32 {
+	// 	log.Fatal("JWT_SECRET must be at least 32 bytes long for AES-256 encryption")
+	// }
 	// if len(key) > 32 {
 	// 	key = key[:32]
 	// }

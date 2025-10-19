@@ -3,15 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
-	"os"
 
 	"sane-discourse-backend/internal/auth"
 	"sane-discourse-backend/internal/handlers"
 	"sane-discourse-backend/internal/middleware"
 	"sane-discourse-backend/internal/repositories"
 	"sane-discourse-backend/internal/services"
-	"sane-discourse-backend/pkg/logger"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
@@ -21,34 +20,17 @@ import (
 )
 
 func main() {
-	logger.Init()
-	log := logger.GetLogger()
-
 	err := godotenv.Load()
 	if err != nil {
-		log.WithError(err).Fatal("Error loading .env file")
+		log.Fatalf("Error loading .env file: %v", err)
 	}
 
 	auth.NewAuth()
 
-	mongoURI := os.Getenv("MONGODB_URI")
-	mongoUsername := os.Getenv("MONGODB_USERNAME")
-	mongoPassword := os.Getenv("MONGODB_PASSWORD")
-	port := os.Getenv("PORT")
-
-	if mongoURI == "" {
-		log.Fatal("MONGODB_URI environment variable is not set")
-	}
-	if mongoUsername == "" {
-		log.Fatal("MONGODB_USERNAME environment variable is not set")
-	}
-	if mongoPassword == "" {
-		log.Fatal("MONGODB_PASSWORD environment variable is not set")
-	}
-	if port == "" {
-		port = "3000" // Default port if not specified
-		log.Warn("PORT environment variable not set, using default: 3000")
-	}
+	mongoURI := "mongodb://admin:dev_admin_password@localhost:27017"
+	mongoUsername := "admin"
+	mongoPassword := "dev_admin_password"
+	port := "3000"
 
 	clientOptions := options.Client().
 		ApplyURI(mongoURI).
@@ -58,11 +40,11 @@ func main() {
 		})
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
-		log.WithError(err).Fatal("Failed to connect to MongoDB")
+		log.Fatalf("Failed to connect to MongoDB: %v", err)
 	}
 	err = client.Ping(context.TODO(), nil)
 	if err != nil {
-		log.WithError(err).Fatal("Failed to ping MongoDB")
+		log.Fatalf("Failed to ping MongoDB: %v", err)
 	}
 
 	userRepo := repositories.NewUserRepository(client)
@@ -73,12 +55,13 @@ func main() {
 	userService := services.NewUserService(userRepo, userpageRepo)
 	postService := services.NewPostService(postRepo, userRepo, reactionRepo)
 	reactionService := services.NewReactionService(reactionRepo)
+	userpageService := services.NewUserpageService(userpageRepo)
 
 	// userHandler := handlers.NewUserHandler(userService)
 	postHandler := handlers.NewPostHandler(postService)
 	reactionHandler := handlers.NewReactionHandler(reactionService)
-
 	authHandler := handlers.NewAuthHandler(userService)
+	userpageHandler := handlers.NewUserpageHandler(userpageService)
 
 	r := chi.NewRouter()
 
@@ -102,6 +85,11 @@ func main() {
 		r.Use(middleware.AuthMiddleWare)
 		r.Put("/auth/me", authHandler.GetCurrentUser)
 	})
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.AuthMiddleWare)
+		r.Put("/userpage/component/add", userpageHandler.AddComponent)
+		r.Put("/userpage/component/move", userpageHandler.MoveComponent)
+	})
 	r.Get("/home", postHandler.GetFeed)
 
 	r.Get("/auth/{provider}", authHandler.BeginAuthProviderCallback)
@@ -111,8 +99,7 @@ func main() {
 	_ = reactionHandler
 
 	serverAddr := fmt.Sprintf(":%s", port)
-	log.Infof("Server starting on port %s", port)
 	if err := http.ListenAndServe(serverAddr, r); err != nil {
-		log.WithError(err).Fatal("Server failed to start")
+		log.Fatalf("Server failed to start: %v", err)
 	}
 }
