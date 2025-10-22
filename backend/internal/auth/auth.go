@@ -46,7 +46,7 @@ func NewAuth() {
 	store.Options.Path = "/"
 	store.Options.HttpOnly = true
 	store.Options.Secure = IsProd
-	store.Options.SameSite = http.SameSiteDefaultMode
+	store.Options.SameSite = http.SameSiteLaxMode
 
 	gothic.Store = store
 	goth.UseProviders(

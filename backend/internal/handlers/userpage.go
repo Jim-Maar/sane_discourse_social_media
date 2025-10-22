@@ -58,6 +58,94 @@ type MoveComponentRequest struct {
 	NewIndex  int `json:"new_index" bson:"new_index"`
 }
 
+func (h *UserpageHandler) GetUserpage(w http.ResponseWriter, r *http.Request) {
+	userIDInterface := r.Context().Value("user_id")
+	userID, ok := userIDInterface.(primitive.ObjectID)
+	if !ok {
+		http.Error(w, "UserID should be of type primitive.ObjectID", http.StatusInternalServerError)
+		return
+	}
+
+	userpage, err := h.userpageService.GetUserpage(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(*userpage)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+}
+
+type UpdateComponentRequest struct {
+	Index     int              `json:"index"`
+	Component models.Component `json:"component"`
+}
+
+func (h *UserpageHandler) UpdateComponent(w http.ResponseWriter, r *http.Request) {
+	var updateComponentRequest UpdateComponentRequest
+	json.NewDecoder(r.Body).Decode(&updateComponentRequest)
+
+	userIDInterface := r.Context().Value("user_id")
+	userID, ok := userIDInterface.(primitive.ObjectID)
+	if !ok {
+		http.Error(w, "UserID should be of type primitive.ObjectID", http.StatusInternalServerError)
+		return
+	}
+
+	userpage, err := h.userpageService.UpdateComponent(
+		userID,
+		updateComponentRequest.Index,
+		&updateComponentRequest.Component,
+	)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(*userpage)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+}
+
+type DeleteComponentRequest struct {
+	Index int `json:"index"`
+}
+
+func (h *UserpageHandler) DeleteComponent(w http.ResponseWriter, r *http.Request) {
+	var deleteComponentRequest DeleteComponentRequest
+	json.NewDecoder(r.Body).Decode(&deleteComponentRequest)
+
+	userIDInterface := r.Context().Value("user_id")
+	userID, ok := userIDInterface.(primitive.ObjectID)
+	if !ok {
+		http.Error(w, "UserID should be of type primitive.ObjectID", http.StatusInternalServerError)
+		return
+	}
+
+	userpage, err := h.userpageService.DeleteComponent(
+		userID,
+		deleteComponentRequest.Index,
+	)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(*userpage)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+}
+
 func (h *UserpageHandler) MoveComponent(w http.ResponseWriter, r *http.Request) {
 	var moveComponentRequest MoveComponentRequest
 	json.NewDecoder(r.Body).Decode(&moveComponentRequest)
@@ -78,11 +166,11 @@ func (h *UserpageHandler) MoveComponent(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(*userpage)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 }

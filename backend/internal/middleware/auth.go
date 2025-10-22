@@ -10,7 +10,11 @@ import (
 
 func AuthMiddleWare(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session, _ := gothic.Store.Get(r, "auth-session")
+		session, err := gothic.Store.Get(r, "auth-session")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		userID, ok := session.Values["user_id"]
 		if !ok {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)

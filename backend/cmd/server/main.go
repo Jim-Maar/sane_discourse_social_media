@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/gob"
 	"fmt"
 	"log"
 	"net/http"
@@ -15,6 +16,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -25,6 +27,7 @@ func main() {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
 
+	gob.Register(primitive.ObjectID{})
 	auth.NewAuth()
 
 	mongoURI := "mongodb://admin:dev_admin_password@localhost:27017"
@@ -87,7 +90,10 @@ func main() {
 	})
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.AuthMiddleWare)
+		r.Get("/userpage", userpageHandler.GetUserpage)
 		r.Put("/userpage/component/add", userpageHandler.AddComponent)
+		r.Put("/userpage/component/update", userpageHandler.UpdateComponent)
+		r.Delete("/userpage/component/delete", userpageHandler.DeleteComponent)
 		r.Put("/userpage/component/move", userpageHandler.MoveComponent)
 	})
 	r.Get("/home", postHandler.GetFeed)

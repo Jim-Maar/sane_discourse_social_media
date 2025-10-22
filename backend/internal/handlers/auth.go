@@ -40,9 +40,17 @@ func (h *AuthHandler) GetAuthCallbackFunction(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	session, _ := gothic.Store.Get(r, "auth-session")
+	session, err := gothic.Store.Get(r, "auth-session")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	session.Values["user_id"] = dbUser.ID
-	session.Save(r, w)
+	err = session.Save(r, w)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	http.Redirect(w, r, "http://localhost:5173/home", http.StatusFound)
 }

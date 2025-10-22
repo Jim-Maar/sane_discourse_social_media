@@ -8,44 +8,51 @@ interface NavigationProps {
 export const Navigation = ({ currentUser, onLogout }: NavigationProps) => {
     return (
         <nav style={{
-            padding: '1rem',
-            borderBottom: '1px solid #ccc',
-            marginBottom: '2rem',
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '1rem'
         }}>
-            <div>
-                <Link to="/" style={{ marginRight: '1rem' }}>
-                    Home
-                </Link>
-                <Link to="/user">
-                    User Page
-                </Link>
+            <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+                <Link to="/">HOME</Link>
+                <Link to="/user">USER</Link>
             </div>
-            <div>
+            <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '1rem',
+                fontSize: '0.9em',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif'
+            }}>
                 {currentUser ? (
-                    <div>
-                        <span style={{ marginRight: '1rem' }}>Welcome, {currentUser}!</span>
-                        <button onClick={onLogout}>Logout</button>
-                    </div>
-                ) : (
-                    <div>
-                        <span style={{ marginRight: '1rem' }}>Not logged in</span>
-                        <button
-                            onClick={() => window.location.href = 'http://localhost:3000/auth/google'}
+                    <>
+                        <span style={{ color: 'var(--text-dim)' }}>
+                            {currentUser}
+                        </span>
+                        <button 
+                            onClick={onLogout}
                             style={{
-                                backgroundColor: '#4285f4',
-                                color: 'white',
-                                border: 'none',
-                                padding: '8px 16px',
-                                borderRadius: '4px',
-                                cursor: 'pointer'
+                                padding: '0.4rem 0.8rem',
+                                fontSize: '0.85em'
                             }}
                         >
-                            Login with Google
+                            Logout
                         </button>
-                    </div>
+                    </>
+                ) : (
+                    <button
+                        onClick={() => window.location.href = 'http://localhost:3000/auth/google'}
+                        style={{
+                            padding: '0.4rem 0.8rem',
+                            fontSize: '0.85em',
+                            backgroundColor: '#4285f4',
+                            color: 'white',
+                            borderColor: '#4285f4'
+                        }}
+                    >
+                        Sign in with Google
+                    </button>
                 )}
             </div>
         </nav>

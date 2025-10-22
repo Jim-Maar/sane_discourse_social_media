@@ -32,7 +32,14 @@ func (s *UserService) LoginUser(username string, email string) (*models.User, er
 	if err != nil {
 		return nil, err
 	}
-	userpage := models.NewUserpage([]models.Component{}, user.ID)
+	// Create userpage with a default header
+	defaultHeader := models.Component{
+		Header: &models.HeaderComponent{
+			Content: username + "'s Page",
+			Size:    models.HeaderComponentSizeLarge,
+		},
+	}
+	userpage := models.NewUserpage([]models.Component{defaultHeader}, user.ID)
 	_, err = s.userpageRepository.Create(*userpage)
 	if err != nil {
 		return nil, err

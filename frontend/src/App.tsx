@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Navigation } from './components/Navigation';
 import { HomePage } from './pages/HomePage';
-import { Userpage } from './pages/Userpage';
+import { Userpage } from './pages/UserPage';
 import type { User } from './types';
 import './App.css';
 
@@ -18,24 +18,53 @@ const queryClient = new QueryClient({
 
 function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  // Load user from localStorage on app start
+  // Check if user is authenticated on app start
   useEffect(() => {
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
+    const checkAuth = async () => {
       try {
-        setCurrentUser(JSON.parse(savedUser));
+        const response = await fetch('http://localhost:3000/auth/me', {
+          method: 'PUT',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (response.ok) {
+          const user = await response.json();
+          setCurrentUser(user);
+        }
       } catch (error) {
-        console.error('Failed to parse saved user:', error);
-        localStorage.removeItem('currentUser');
+        console.log('Not authenticated');
+      } finally {
+        setIsCheckingAuth(false);
       }
-    }
+    };
+
+    checkAuth();
   }, []);
 
   const handleLogout = () => {
     setCurrentUser(null);
-    localStorage.removeItem('currentUser');
+    // Optionally redirect to logout endpoint
+    window.location.href = 'http://localhost:3000/auth/logout';
   };
+
+  if (isCheckingAuth) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        minHeight: '100vh',
+        color: 'var(--text-color)'
+      }}>
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -48,6 +77,7 @@ function App() {
 
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/home" element={<HomePage />} />
             <Route
               path="/user"
               element={

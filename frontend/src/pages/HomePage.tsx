@@ -9,19 +9,25 @@ export const HomePage = () => {
     });
 
     if (isLoading) {
-        return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading feed...</div>;
+        return (
+            <div className="container">
+                <div className="loading">Loading feed...</div>
+            </div>
+        );
     }
 
     if (error) {
         return (
-            <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>
-                Error loading feed: {error instanceof Error ? error.message : 'Unknown error'}
+            <div className="container">
+                <div className="error">
+                    Error loading feed: {error instanceof Error ? error.message : 'Unknown error'}
+                </div>
             </div>
         );
     }
 
     return (
-        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '1rem' }}>
+        <div className="container">
             <h1>Home Feed</h1>
             {posts && posts.length > 0 ? (
                 <div>
@@ -30,8 +36,12 @@ export const HomePage = () => {
                     ))}
                 </div>
             ) : (
-                <div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
-                    No posts available
+                <div style={{ 
+                    textAlign: 'center', 
+                    padding: '3rem 1rem', 
+                    color: 'var(--text-dim)' 
+                }}>
+                    No posts available yet.
                 </div>
             )}
         </div>

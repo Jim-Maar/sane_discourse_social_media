@@ -7,9 +7,52 @@ http://localhost:3000
 
 ## Authentication
 
-The API uses session-based authentication with OAuth providers (Google). For testing purposes, a mock authentication endpoint is available.
+The API uses session-based authentication with OAuth providers (Google).
 
-### Mock Authentication (Testing Only)
+### Google OAuth Authentication
+
+#### Initiate Google Login
+```http
+GET /auth/google
+```
+
+**Description:** Redirects to Google OAuth login page. After successful authentication, redirects back to the callback URL.
+
+**Response:** HTTP 302 redirect to Google OAuth
+
+#### OAuth Callback (Automatic)
+```http
+GET /auth/google/callback
+```
+
+**Description:** Handles the OAuth callback from Google. Creates or logs in the user, sets session cookie, and redirects to `http://localhost:5173/home`.
+
+**Response:** HTTP 302 redirect to frontend home page with session cookie set
+
+### Get Current User
+```http
+PUT /auth/me
+```
+
+**Description:** Returns the currently authenticated user based on session cookie. Requires authentication.
+
+**Response:**
+```json
+{
+  "id": "ObjectID",
+  "username": "string",
+  "email": "string"
+}
+```
+
+**Error Response (401):** User not authenticated
+
+---
+
+### Mock Authentication (Testing/Development Only)
+
+**Note:** This endpoint is intended for automated testing only and should not be used in production.
+
 ```http
 PUT /auth/login
 ```
@@ -21,22 +64,6 @@ PUT /auth/login
   "email": "string"
 }
 ```
-
-**Response:**
-```json
-{
-  "id": "ObjectID",
-  "username": "string",
-  "email": "string"
-}
-```
-
-### Get Current User
-```http
-PUT /auth/me
-```
-
-**Description:** Returns the currently authenticated user.
 
 **Response:**
 ```json
@@ -279,6 +306,24 @@ GET /home
 
 ### Userpage Endpoints
 
+#### Get Userpage
+```http
+GET /userpage
+```
+
+**Description:** Retrieves the authenticated user's userpage. If no userpage exists, creates and returns an empty one. Requires authentication.
+
+**Response:**
+```json
+{
+  "id": "ObjectID",
+  "user_id": "ObjectID",
+  "components": [
+    // Array of components
+  ]
+}
+```
+
 #### Add Component to Userpage
 ```http
 PUT /userpage/component/add
@@ -292,7 +337,61 @@ PUT /userpage/component/add
   "index": "number",
   "component": {
     // Component object (PostComponent, HeaderComponent, ParagraphComponent, or DividerComponent)
+    // See Component Types section for structure
   }
+}
+```
+
+**Response:**
+```json
+{
+  "id": "ObjectID",
+  "user_id": "ObjectID",
+  "components": [
+    // Array of updated components
+  ]
+}
+```
+
+#### Update Component in Userpage
+```http
+PUT /userpage/component/update
+```
+
+**Description:** Updates an existing component at a specific index in the authenticated user's userpage. Requires authentication.
+
+**Request Body:**
+```json
+{
+  "index": "number",
+  "component": {
+    // Updated component object
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "id": "ObjectID",
+  "user_id": "ObjectID",
+  "components": [
+    // Array of updated components
+  ]
+}
+```
+
+#### Delete Component from Userpage
+```http
+DELETE /userpage/component/delete
+```
+
+**Description:** Deletes a component at a specific index from the authenticated user's userpage. Requires authentication.
+
+**Request Body:**
+```json
+{
+  "index": "number"
 }
 ```
 
